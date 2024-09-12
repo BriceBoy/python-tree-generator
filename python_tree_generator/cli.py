@@ -8,7 +8,7 @@ from . import __version__
 
 def parse_cmd_line_arguments():
     parser = argparse.ArgumentParser(
-        prog="tree",
+        prog="tree-gen",
         description="Python Tree Generator, a directory tree generator",
         epilog="Thanks for using Python Tree Generator!",
     )
@@ -34,5 +34,21 @@ def parse_cmd_line_arguments():
         nargs="?",
         default=sys.stdout,
         help="generate a full directory tree and save it to a file",
-    )
+    ),
+    parser.add_argument(
+        "-ed",
+        "--exclude-dir",
+        metavar="EXCLUDED_DIR",
+        action="append",
+        default=[],
+        help="exclude directories from the tree generation (can be used multiple times)"
+    ),
+    parser.add_argument(
+        "-ef",
+        "--exclude-file",
+        metavar="EXCLUDED_FILE",
+        action="append",
+        default=[],
+        help="exclude files from the tree generation (can be used multiple times)"
+    ),
     return parser.parse_args()

@@ -12,9 +12,18 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir, dir_only=False, output_file=sys.stdout):
+    def __init__(
+        self, 
+        root_dir: pathlib.Path,
+        excluded_dirs: list[str],
+        excluded_files: list[str], 
+        dir_only: bool=False, 
+        output_file=sys.stdout
+    ):
         self._output_file = output_file
-        self._generator = _TreeGenerator(root_dir, dir_only)
+        self._excluded_dirs = excluded_dirs
+        self._excluded_files = excluded_files
+        self._generator = _TreeGenerator(root_dir, excluded_dirs, excluded_files, dir_only)
 
     def generate(self):
         tree = self._generator.build_tree()
@@ -29,9 +38,17 @@ class DirectoryTree:
 
 
 class _TreeGenerator:
-    def __init__(self, root_dir, dir_only=False):
+    def __init__(
+        self,
+        root_dir: pathlib.Path,
+        excluded_dirs: list[str],
+        excluded_files:list[str],
+        dir_only: bool=False
+    ):
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
+        self._excluded_dirs = excluded_dirs
+        self._excluded_files = excluded_files
         self._tree = deque()
 
     def build_tree(self):
@@ -59,6 +76,9 @@ class _TreeGenerator:
         return sorted(entries, key=lambda entry: entry.is_file())
 
     def _add_directory(self, directory, index, last_index, prefix, connector):
+        if directory.name in self._excluded_dirs:
+            return
+
         self._tree.append(f"{prefix}{connector} 📂 {directory.name}")
         if index != last_index:
             prefix += PIPE_PREFIX
@@ -67,4 +87,6 @@ class _TreeGenerator:
         self._tree_body(directory=directory, prefix=prefix)
 
     def _add_file(self, file, prefix, connector):
+        if file.name in self._excluded_files:
+            return
         self._tree.append(f"{prefix}{connector} 📄 {file.name}")
