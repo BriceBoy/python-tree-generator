@@ -40,7 +40,7 @@ class _TreeGenerator:
         return self._tree
 
     def _tree_head(self):
-        self._tree.append(f"{self._root_dir}")
+        self._tree.append(f"📂 {self._root_dir}")
 
     def _tree_body(self, directory, prefix=""):
         entries = self._prepare_entries(directory)
