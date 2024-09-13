@@ -59,7 +59,7 @@ class _TreeGenerator:
     def _tree_head(self):
         self._tree.append(f"📂 {self._root_dir}")
 
-    def _tree_body(self, directory, prefix=""):
+    def _tree_body(self, directory: pathlib.Path, prefix: str=""):
         entries = self._prepare_entries(directory)
         last_index = len(entries) - 1
         for index, entry in enumerate(entries):
@@ -69,11 +69,20 @@ class _TreeGenerator:
             else:
                 self._add_file(entry, prefix, connector)
 
-    def _prepare_entries(self, directory):
+    def _prepare_entries(self, directory: pathlib.Path):
         entries = sorted(directory.iterdir(), key=lambda entry: str(entry))
         if self._dir_only:
-            return [entry for entry in entries if entry.is_dir()]
-        return sorted(entries, key=lambda entry: entry.is_file())
+            entries = [entry for entry in entries if entry.is_dir()]
+        else:
+            entries = sorted(entries, key=lambda entry: entry.is_file())
+        return self._remove_excluded(entries)
+
+    def _remove_excluded(self, entries: list[pathlib.Path]):
+        return [
+            entry for entry in entries
+            if (entry.is_dir() and entry.name not in self._excluded_dirs)
+            or (entry.is_file() and entry.name not in self._excluded_files)
+        ]
 
     def _add_directory(self, directory, index, last_index, prefix, connector):
         if directory.name in self._excluded_dirs:
